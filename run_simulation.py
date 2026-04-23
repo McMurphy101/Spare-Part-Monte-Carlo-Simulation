@@ -13,6 +13,7 @@ PN                    = st.text_input("Enter Part Number", value="A001")
 
 prt_MTBF              = st.number_input("Enter Part MTBF", value=850)
 prt_RTAT              = st.number_input("Enter Part RTAT", value=250)
+prt_BER               = st.number_input("Enter Condemnation Rate", value=0.02)
 OneWayRepairShipTime  = st.number_input("Enter Part Ship Time (one way)", value=30)
 annualOpHrs           = st.number_input("Enter Fleet Annual Operating Hours", value=10000)
 opHrsSinceLastFailure = st.number_input("Enter Fleet Operating Hours Since Last Failure", value=200)
@@ -27,6 +28,6 @@ model_end             = st.date_input("Enter Model End Date", value=date(2030,12
 # run button
 if st.button("Run Simulation"):
     with st.spinner('Compiling...'):
-        spares_needed = run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, annualOpHrs, opHrsSinceLastFailure, userNMCSrequirement, model_start, model_end, monte_carlo_iterations)
+        spares_needed = run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, annualOpHrs, opHrsSinceLastFailure, userNMCSrequirement, model_start, model_end, monte_carlo_iterations,prt_BER)
         st.write(f"Estimated Spares Needed to Meet NMCS Requirement: {spares_needed}")
     st.success('Simulation Complete!')

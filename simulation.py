@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from statistics import mean
 import pandas as pd
 import numpy as np
+import random
 
 # Create Class for all Sim Functions
 class SimulationFunctions:
@@ -47,8 +48,18 @@ class SimulationFunctions:
         RepairList.remove(item)
 
     return RepairList, Inventory_Track
+  
+  def check4condemnedPrt(self):
+    condemnedPart = False
+    rate = (float(self.part_df.loc[0, 'Part Condemnation Rate']))*100
+    randVal = random.random()*100
+    if randVal <= rate:
+      condemnedPart = True
 
-def run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, annualOpHrs, opHrsSinceLastFailure, userNMCSrequirement, model_start, model_end,monte_carlo_iterations):
+    return condemnedPart
+
+
+def run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, annualOpHrs, opHrsSinceLastFailure, userNMCSrequirement, model_start, model_end,monte_carlo_iterations,prt_BER):
 
   # Consolidate Data for Prt into Dictonary
   prtData = {
@@ -57,7 +68,8 @@ def run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, a
       'Part MTBF': prt_MTBF,
       'Part Reliability Type': 'exponential',
       'Part RTAT': prt_RTAT,
-      'Part Shipping Days': OneWayRepairShipTime
+      'Part Shipping Days': OneWayRepairShipTime,
+      'Part Condemnation Rate': prt_BER
   }
 
   part_df = pd.DataFrame([prtData])
@@ -136,8 +148,12 @@ def run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, a
           failed = simulation.checkForPrtFailure(OpHrTracker,model_MTBF)
 
           if failed == True:
-            # Send Part in for Repair
-            RepairList, Repairs_Track = simulation.move2repair(model_date,RepairList,Repairs_Track)
+            # Check for Condemned Part
+            tempCondemBool = simulation.check4condemnedPrt()
+
+            # Send Part in for Repair if not condemned. If condemned, part leaves model
+            if tempCondemBool == False:
+              RepairList, Repairs_Track = simulation.move2repair(model_date,RepairList,Repairs_Track)
 
             # Get New MTBF
             set_seed = i*day
@@ -169,5 +185,6 @@ def run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, a
 
     result_per_MC_run[i] = Init_Spare_Inventory
 
-  final_result =round(mean(result_per_MC_run))
-  return final_result
+  final_result_spares =round(mean(result_per_MC_run))
+
+  return final_result_spares
