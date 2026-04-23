@@ -13,13 +13,14 @@ def test_sim_runs():
     opHrsSinceLastFailure = 200
     userNMCSrequirement = 5
     monte_carlo_iterations = 500
+    prt_BER = 0.02
 
     model_start = date.today()
     model_end   = date(2030,12,31)
 
 
     # Run 
-    spares_needed = run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, annualOpHrs, opHrsSinceLastFailure, userNMCSrequirement, model_start, model_end, monte_carlo_iterations)
+    spares_needed = run_simulation(Nomenclature, PN, prt_MTBF, prt_RTAT, OneWayRepairShipTime, annualOpHrs, opHrsSinceLastFailure, userNMCSrequirement, model_start, model_end, monte_carlo_iterations,prt_BER)
 
     # Ensure Result is >= 0
     assert spares_needed >= 0
